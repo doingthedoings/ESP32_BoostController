@@ -40,7 +40,7 @@ This project is a sophisticated, feature-rich electronic boost controller for tu
 
 ### Pinout
 
-The firmware is configured for the following pin connections on the Adafruit Feather ESP32-S3:
+The firmware is configured for the following pin connections on the Waveshare ESP32-S3-Zero:
 
 | ESP32-S3 Pin | Component / Function |
 | --- | --- |
