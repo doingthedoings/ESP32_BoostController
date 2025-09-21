@@ -17,6 +17,8 @@ This project is a sophisticated, feature-rich electronic boost controller for tu
     - Target boost and pressure limits
     - Signal filtering and timing
 - **Performance Analytics:** Innovative "Spool Score" and "Torque Score" metrics provide quantitative feedback on your engine's boost response, allowing for data-driven tuning.
+    - **Spool Score:** This metric measures the instantaneous rate of change (peak-derivative) of the boost pressure rise. A higher spool score indicates a faster and more aggressive boost build-up, reflecting efficient turbocharger response.
+    - **Torque Score:** This score is derived from the integral of boost pressure over time. It factors in how early boost is achieved and how well it's maintained until a gear shift. Crucially, the torque score penalizes overboosting by subtracting any integral value accumulated above the target boost pressure. This ensures that configurations which avoid undesirable overboost conditions receive a higher, more favorable torque score for accurate comparison and optimal tuning.
 - **Persistent Memory:** All settings and tuning profiles are automatically saved to the ESP32's internal EEPROM, ensuring they are retained across power cycles.
 - **Hardware-Level Safety:** Includes functionality for factory reset via a touch-hold on boot.
 
@@ -76,7 +78,7 @@ The project relies on the following libraries, which PlatformIO will manage auto
     - In VS Code, go to `File > Open Folder...` and select the cloned project directory.
 4.  **Build & Upload:**
     - PlatformIO will automatically detect the `platformio.ini` file and should prompt you to install the required libraries if they are missing.
-    - Connect your Adafruit Feather ESP32-S3 board to your computer via USB.
+    - Connect your Waveshare ESP32-S3-Zero board to your computer via USB. Identify the COM port for your device and add it to the platformio.ini file accordingly.
     - Click the **PlatformIO: Upload** task (the right-arrow icon) in the VS Code status bar at the bottom of the window. This will compile the firmware and flash it to your device.
 
 ## Code Structure
@@ -97,7 +99,7 @@ The source code is organized into several files within the `src/` directory to m
 
 ## Operation
 
-The interface is controlled via the six touch pads, which correspond to labels shown at the bottom of the screen.
+The interface is controlled via six capactive touch inputs which correspond to labels shown at the bottom of the screen. These labels change depending on the menu and current function.
 
 - **Main Screen:** Shows primary boost data.
     - **Hold `EDIT`** to enter the boost setpoint screen.
@@ -110,9 +112,98 @@ The interface is controlled via the six touch pads, which correspond to labels s
     - **`BACK`:** Return to the previous screen.
     - **`SAVE`:** Hold to save the current settings to EEPROM.
 
+## Configuration Menus
+
+The ESP32 Boost Controller features a comprehensive menu system accessible directly on the device via the OLED display and capacitive touch inputs. This section details each configuration parameter, its function, and the context provided by its associated info text.
+
+### PID Tuning Menu
+
+This menu allows for fine-tuning of the Proportional-Integral-Derivative (PID) control loop, which is responsible for maintaining target boost pressure.
+
+*   **Kp (P-Gain)**
+    *   **Description:** The main driving force of the PID controller. It determines the strength of the immediate response to a boost error.
+*   **Ki (I-Gain)**
+    *   **Description:** Addresses steady-state errors by accumulating error over time. It helps to eliminate boost droop and ensure the target boost is held consistently.
+*   **Kd (D-Gain)**
+    *   **Description:** Reacts to the rate of change of the boost error, helping to dampen oscillations and prevent overshoot.
+*   **Max I term (Max Integral)**
+    *   **Description:** Sets a limit on the accumulated integral error. This prevents "integral 'windup,'" a condition where a large integral value can cause significant overshoot after a disturbance.
+*   **Trig. Thres. (PID Trigger)**
+    *   **Unit:** kPa
+    *   **Description:** Defines how close the current boost pressure needs to be to the target pressure before the PID control loop fully activates. This prevents the PID from reacting to minor fluctuations far from the target.
+*   **Press. Limiter (Pressure Limiter)**
+    *   **Unit:** kPa
+    *   **Description:** A safety feature that forces the wastegate open if the boost pressure exceeds the target pressure by this specified value. This prevents overboost conditions that could damage the engine.
+*   **Solenoid Freq. (Solenoid Frequency)**
+    *   **Unit:** Hz
+    *   **Description:** Sets the operating frequency for the boost control solenoid. This value should be matched to the specifications of your particular solenoid for optimal performance.
+    
+### MAP Sensor Menu
+
+This menu is used for calibrating the Manifold Absolute Pressure (MAP) sensor to ensure accurate boost readings.
+
+*   **Pressure Offset**
+    *   **Unit:** kPa
+    *   **Description:** Allows for a manual correction to the MAP sensor reading to match a known, accurate external gauge.
+*   **Min kPa**
+    *   **Unit:** kPa
+    *   **Description:** The minimum pressure (in kPa) that your MAP sensor is designed to read. This value, along with Max kPa, Min Volts, and Max Volts, must accurately reflect your sensor's datasheet.
+*   **Max kPa**
+    *   **Unit:** kPa
+    *   **Description:** The maximum pressure (in kPa) that your MAP sensor is designed to read.
+*   **V Offset (Voltage Offset)**
+    *   **Unit:** V
+    *   **Description:** The voltage scaling offset from the MAP sensor data sheet(if applicable). If there is no specified voltage offset, leave this value at 0.
+*   **Min Volts**
+    *   **Unit:** V
+    *   **Description:** The minimum voltage output by your MAP sensor at its lowest pressure reading.
+*   **Max Volts**
+    *   **Unit:** V
+    *   **Description:** The maximum voltage output by your MAP sensor at its highest pressure reading.
+
+### Filtering & Misc. Menu
+
+This menu contains parameters related to signal filtering, timing, and general system behavior.
+
+*   **Slow EMA-A (Slow Exponential Moving Average Alpha)**
+    *   **Description:** Controls the smoothing applied to boost pressure readings for stable conditions. A lower value results in heavier smoothing, making the readings more stable but less responsive to rapid changes.
+    
+*   **Fast EMA-A (Fast Exponential Moving Average Alpha)**
+    *   **Description:** Controls the smoothing applied during rapid boost changes. A higher value results in less smoothing, making the readings more responsive but potentially more susceptible to noise.
+    
+*   **P-Rate Thres. (Pressure Rate Threshold)**
+    *   **Unit:** kPa
+    *   **Description:** The change in pressure (in kPa) required to switch from using the slow EMA filter to the fast EMA filter. This allows for stable readings during steady boost and responsive readings during spool-up.
+    
+*   **Rate period (Rate Period)**
+    *   **Unit:** ms
+    *   **Description:** The time window (in milliseconds) over which the pressure rate of change is calculated. This influences how quickly the system detects rapid boost changes.
+    
+*   **Oversampling**
+    *   **Description:** The number of Analog-to-Digital Converter (ADC) reads averaged together to produce a single pressure measurement. Higher oversampling reduces noise but consumes more CPU time.
+    
+*   **Save/Reset Delay**
+    *   **Unit:** ms
+    *   **Description:** The duration (in milliseconds) that the SAVE or RESET button must be held down to activate its function. This prevents accidental activation.
+    
+*   **Edit/CFG Delay**
+    *   **Unit:** ms
+    *   **Description:** The duration (in milliseconds) that the EDIT or CFG button must be held down to enter its respective menu.
+    
+*   **Sleep Delay**
+    *   **Unit:** s
+    *   **Description:** The amount of idle time (in seconds) at atmospheric pressure before the display and solenoid turn off to conserve power.
+    
+*   **TS Rate (Torque Score Rate)**
+    *   **Unit:** ms
+    *   **Description:** The sample rate (in milliseconds) at which data is collected for the Torque Score calculation. A lower value provides more granular data but increases processing load.
+    
+
+
 ### Factory Reset
 
 To restore all settings to their default values, press and hold **Touch Input 6** (`CLR`) while the device is powering on. A "FACTORY RESET..." message will appear on the screen.
+
 
 ## License
 
