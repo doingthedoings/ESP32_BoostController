@@ -36,7 +36,8 @@ This project is a sophisticated, feature-rich electronic boost controller for tu
 | **Diode** | 1N4744A Zener Diode for back-EMF protection |
 | **Capacitors** | 680uF, 10V (x2) for 5V rail stabilization |
 | **Resistors** | 330Ω (MOSFET gate), 1kΩ (Optocoupler), and a voltage divider for 5V MAP sensors (e.g., 10kΩ & 15kΩ, software configurable) |
-| **Connectors** | JST-XH 6-pin and 4-pin for modular connections |
+| **Connectors** | JST-XH 6-pin and 4-pin for modular connections, GX12-2 connector for boost solenoid, GX16-5 connector for power input/ground and MAP sensor connections.
+| **Fasteners and hardware** | 4x M4x12mm screws and 4x M4x8mm brass inserts for housing lid. 8x M2x6 screws with 4x M2.0x3mm brass inserts for OLED, 4x M2.0x5mm inserts for board mounting. Electro-cookie 1/2 size prototyping board.
 
 ### Pinout
 
