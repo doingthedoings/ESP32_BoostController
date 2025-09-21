@@ -116,5 +116,9 @@ To restore all settings to their default values, press and hold **Touch Input 6*
 
 ## License
 
-This project is currently unlicensed. You are free to use, modify, and distribute the code as you see fit.
+This project is licensed under the MIT License.
+
+The MIT License is a permissive free software license, meaning it allows you to do almost anything you want with the code, such as using, copying, modifying, merging, publishing, distributing, sublicensing, and/or selling copies of the software. The only requirements are that the original copyright notice and permission notice are included in all copies or substantial portions of the software.
+
+This choice was made to encourage broad adoption and collaboration, allowing developers and enthusiasts to freely use and build upon this project for their own purposes, both open source and commercial, with minimal restrictions.
 
