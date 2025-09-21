@@ -105,12 +105,20 @@ The interface is controlled via six capactive touch inputs which correspond to l
     - **Hold `EDIT`** to enter the boost setpoint screen.
     - **Hold `CFG`** to enter the main configuration menu.
     - **Tap `A` or `B`** to switch to that preset.
-    - **Tap `CLR`** to reset the peak-hold pressure value.
+    - **Tap `TS`** to enter the tune-scoring menu(additional explanations below).
+    - **Tap `CLR`** to clear the peak-hold pressure value, or to enter the Tune Scoring (TS) menu from the main screen.
 - **Menus:**
     - **`+` / `-`:** Navigate up/down or increase/decrease values.
     - **`SEL`:** Select a menu item to edit.
     - **`BACK`:** Return to the previous screen.
     - **`SAVE`:** Hold to save the current settings to EEPROM.
+
+### Tune Scoring (TS) Menu
+
+The Tune Scoring menu provides insights into your boost control performance.
+
+*   **Score Reset Behavior:** If any configuration settings are changed for the active profile (Preset A or B), the Spool Score and Torque Score for that profile will be automatically reset. This ensures that the scores accurately reflect the performance of the *new* settings, requiring re-testing to generate fresh scores.
+*   **Saving Scores:** To save the current profile's configuration along with its associated Spool Score and Torque Score values, navigate to the TS menu and press the corresponding `SaveA` or `SaveB` buttons. This allows you to store and compare the performance of different tuning strategies.
 
 ## Configuration Menus
 
