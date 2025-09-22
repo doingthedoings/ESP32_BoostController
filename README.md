@@ -54,7 +54,7 @@ The firmware is configured for the following pin connections on the Waveshare ES
 | `9` | Touch Input 3 (Decrement) |
 | `10`| Touch Input 4 (Increment) |
 | `11`| Touch Input 5 (Config / Info) |
-| `12`| Touch Input 6 (Select / Clear Peak-hold, Spool-score, and Torque-score on main display) |
+| `12`| Touch Input 6 (Select / Clear Peak, SS, TS) |
 
 ## Software & Installation
 
@@ -106,20 +106,35 @@ The interface is controlled via six capactive touch inputs which correspond to l
     - **Hold `EDIT`** to enter the boost setpoint screen.
     - **Hold `CFG`** to enter the main configuration menu.
     - **Tap `A` or `B`** to switch to that preset.
-    - **Tap `TS`** to enter the tune-scoring menu(additional explanations below).
-    - **Tap `CLR`** to clear the peak-hold pressure value, or to enter the Tune Scoring (TS) menu from the main screen.
+    - **Tap `TS`** to enter the tune-scoring menu.
+    - **Tap `CLR`** to clear the peak-hold pressure, Spool Score, and Torque Score.
 - **Menus:**
     - **`+` / `-`:** Navigate up/down or increase/decrease values.
     - **`SEL`:** Select a menu item to edit.
     - **`BACK`:** Return to the previous screen.
     - **`SAVE`:** Hold to save the current settings to EEPROM.
 
-### Tune Scoring (TS) Menu
+### Understanding Saving: Setpoints vs. Profiles
+The boost controller has two distinct save functions that are important to understand: saving the target pressure (setpoint) and saving a full configuration profile (A/B).
 
-The Tune Scoring menu provides insights into your boost control performance.
+#### Changing the Target Pressure
+This is a quick way to make a temporary adjustment to your boost target without affecting your saved profiles.
+1.  **Enter Edit Mode:** On the main screen, press and hold the **`EDIT`** button (top-left).
+2.  **Adjust Pressure:** Use the **`+`** and **`-`** buttons to set your desired target pressure.
+3.  **Save Setpoint:** Press and hold the **`SAVE`** button (top-right).
+This action saves *only the target pressure* to memory. This new setpoint will be active until you load profile A or B.
 
-*   **Score Reset Behavior:** If any configuration settings are changed for the active profile (Preset A or B), the Spool Score and Torque Score for that profile will be automatically reset. This ensures that the scores accurately reflect the performance of the *new* settings, requiring re-testing to generate fresh scores.
-*   **Saving Scores:** To save the current profile's configuration along with its associated Spool Score and Torque Score values, navigate to the TS menu and press the corresponding `SaveA` or `SaveB` buttons. This allows you to store and compare the performance of different tuning strategies.
+#### Saving a Full A/B Profile
+This saves the *entire* current configuration—including the target pressure, all PID parameters, and other settings—into one of the two profile slots. This is how you store a complete tune.
+1.  **Tune Your Settings:** Use the configuration menus to adjust PID gains, filter settings, etc., to your liking.
+2.  **Navigate to the TS Menu:** From the main screen, tap the **`TS`** button.
+3.  **Save the Profile:** On the "Tune & Scoring" screen, press and hold **`SaveA`** or **`SaveB`**.
+This will store all the currently active settings into the selected profile slot for later recall.
+
+### Clearing Scores and Peak-Hold
+To ensure that performance metrics are always relevant to the current tune, the Spool Score (SS), Torque Score (TS), and Peak-Hold pressure values are cleared in two ways:
+*   **Automatically:** When you switch between Profile A and Profile B on the main screen, all three values are automatically reset.
+*   **Manually:** On the main screen, you can tap the **`CLR`** button (bottom-right) at any time to manually clear the current SS, TS, and Peak-Hold values.
 
 ## Configuration Menus
 
@@ -208,7 +223,6 @@ This menu contains parameters related to signal filtering, timing, and general s
     *   **Description:** The sample rate (in milliseconds) at which data is collected for the Torque Score calculation. A lower value provides more granular data but increases processing load.
     
 
-
 ### Factory Reset
 
 To restore all settings to their default values, press and hold **Touch Input 6** (`CLR`) while the device is powering on. A "FACTORY RESET..." message will appear on the screen.
@@ -221,4 +235,3 @@ This project is licensed under the MIT License.
 The MIT License is a permissive free software license, meaning it allows you to do almost anything you want with the code, such as using, copying, modifying, merging, publishing, distributing, sublicensing, and/or selling copies of the software. The only requirements are that the original copyright notice and permission notice are included in all copies or substantial portions of the software.
 
 This choice was made to encourage broad adoption and collaboration, allowing developers and enthusiasts to freely use and build upon this project for their own purposes, both open source and commercial, with minimal restrictions.
-
