@@ -13,8 +13,8 @@ const float IDLE_PRESSURE_MAX_KPA = 105.0;
 const float REACTIVATE_PRESSURE_KPA = 75.0;
 
 // -- Sensor Calibration --
-const float R1_OHMS = 10050.0;
-const float R2_OHMS = 15080.0;
+const float R1_OHMS = 9980.0;
+const float R2_OHMS = 15000.0;
 
 // -- Touch Input --
 const uint32_t TOUCH_SENSITIVITY_OFFSET = 10000;

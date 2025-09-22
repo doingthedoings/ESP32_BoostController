@@ -27,6 +27,7 @@
 #define SCREEN_WIDTH 128
 #define SCREEN_HEIGHT 64
 #define OLED_RESET -1
+#define MAX_BOOST_EVENT_SAMPLES 1000
 
 //================================================================================
 // EEPROM ADDRESSES

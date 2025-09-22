@@ -98,41 +98,39 @@ void updateDisplay() {
 
             if (local_targetkPa != last_targetkPa) {
                 display.fillRect(68, 2, 60, 8, SSD1306_BLACK);
-                dtostrf(local_targetkPa, 3, 0, buffer); strcat(buffer, " kPa");
+                snprintf(buffer, sizeof(buffer), "%.0f kPa", local_targetkPa);
                 drawRightAlignedString(buffer, 2);
                 last_targetkPa = local_targetkPa;
             }
             if (abs(local_pressurekPa - last_pressurekPa) > 0.05) { 
                 display.fillRect(68, 12, 60, 8, SSD1306_BLACK);
-                dtostrf(local_pressurekPa, 4, 1, buffer); strcat(buffer, " kPa");
+                snprintf(buffer, sizeof(buffer), "%.1f kPa", local_pressurekPa);
                 drawRightAlignedString(buffer, 12);
                 last_pressurekPa = local_pressurekPa;
             }
             if (abs(local_controlPercent - last_controlPercent) > 0.05) { 
                 display.fillRect(68, 22, 60, 8, SSD1306_BLACK);
-                dtostrf(local_controlPercent, 3, 0, buffer); strcat(buffer, "%");
+                snprintf(buffer, sizeof(buffer), "%.0f%%", local_controlPercent);
                 drawRightAlignedString(buffer, 22);
                 last_controlPercent = local_controlPercent;
             }
              if (abs(local_peakHoldkPa - last_peakHoldkPa) > 0.05) { 
                 display.fillRect(68, 32, 60, 8, SSD1306_BLACK);
-                dtostrf(local_peakHoldkPa, 4, 1, buffer); strcat(buffer, " kPa");
+                snprintf(buffer, sizeof(buffer), "%.1f kPa", local_peakHoldkPa);
                 drawRightAlignedString(buffer, 32);
                 last_peakHoldkPa = local_peakHoldkPa;
             }
             if (abs(local_spoolScore - last_spoolScore) > 0.05) {
                 display.fillRect(20, 42, 46, 8, SSD1306_BLACK);
                 display.setCursor(20, 42);
-                dtostrf(local_spoolScore, 4, 0, buffer);
+                snprintf(buffer, sizeof(buffer), "%.0f", local_spoolScore);
                 display.print(buffer);
                 last_spoolScore = local_spoolScore;
             }
             if (abs(local_torqueScore - last_torqueScore) > 0.05) {
                 display.fillRect(68, 42, 60, 8, SSD1306_BLACK);
-                char ts_buffer[20];
-                dtostrf(local_torqueScore, 4, 0, buffer);
-                sprintf(ts_buffer, "TS:%s", buffer);
-                drawRightAlignedString(ts_buffer, 42);
+                snprintf(buffer, sizeof(buffer), "TS:%.0f", local_torqueScore);
+                drawRightAlignedString(buffer, 42);
                 last_torqueScore = local_torqueScore;
             }
             drawHoldIndicator();
@@ -141,7 +139,7 @@ void updateDisplay() {
             display.clearDisplay();
             display.setTextSize(2); drawCenteredString("SET BOOST", 5);
             display.drawFastHLine(0, 22, 128, SSD1306_WHITE);
-            dtostrf(local_targetkPa, 3, 0, buffer); strcat(buffer, "kPa");
+            snprintf(buffer, sizeof(buffer), "%.0f kPa", local_targetkPa);
             display.setTextSize(3); drawCenteredString(buffer, 27);
             drawActionLabels();
             drawHoldIndicator(); 
@@ -189,8 +187,7 @@ void updateDisplay() {
             display.setTextSize(1); drawCenteredString(currentParamName, 5);
             display.drawFastHLine(0, 16, 128, SSD1306_WHITE);
             display.setTextSize(2);
-            dtostrf(tempEditValue, 1, currentParamPrecision, buffer);
-            strcat(buffer, currentParamUnit);
+            snprintf(buffer, sizeof(buffer), "%.*f %s", currentParamPrecision, tempEditValue, currentParamUnit);
             drawCenteredString(buffer, 28);
             drawActionLabels();
             break;

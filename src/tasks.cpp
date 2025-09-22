@@ -125,7 +125,9 @@ void pidControlTask(void *pvParameters) {
                 break;
 
             case SPOOL_LOGGING:
-                boostEventData.push_back({currentPressure, currentTime});
+                if (boostEventData.size() < MAX_BOOST_EVENT_SAMPLES) {
+                    boostEventData.push_back({currentPressure, currentTime});
+                }
                 if (currentPressure > p_peak) {
                     p_peak = currentPressure;
                     t_peak = currentTime;
@@ -167,6 +169,7 @@ void pidControlTask(void *pvParameters) {
             float maxRate = 0.0;
             if (boostEventData.size() > 1) {
                 for (size_t i = 1; i < boostEventData.size(); ++i) {
+                    vTaskDelay(1); // Yield to prevent watchdog timeout
                     float p_delta = boostEventData[i].pressure - boostEventData[i-1].pressure;
                     unsigned long t_delta = boostEventData[i].timestamp - boostEventData[i-1].timestamp;
                     if (t_delta > 0) {
@@ -196,7 +199,9 @@ void pidControlTask(void *pvParameters) {
         }
 
         if (torqueState == TORQUE_LOGGING) {
-            boostEventData.push_back({currentPressure, currentTime});
+            if (boostEventData.size() < MAX_BOOST_EVENT_SAMPLES) {
+                boostEventData.push_back({currentPressure, currentTime});
+            }
             if (currentPressure < (p_peak - TERMINATION_DROP_KPA)) {
                 torqueState = TORQUE_CALCULATE_AND_DISPLAY;
             }
@@ -206,6 +211,7 @@ void pidControlTask(void *pvParameters) {
             float totalScore = 0;
             if (boostEventData.size() > 1) {
                 for (size_t i = 1; i < boostEventData.size(); ++i) {
+                    vTaskDelay(1); // Yield to prevent watchdog timeout
                     float p_avg = (boostEventData[i].pressure + boostEventData[i-1].pressure) / 2.0;
                     unsigned long t_delta = boostEventData[i].timestamp - boostEventData[i-1].timestamp;
                     float area = (p_avg - 100.0) * t_delta; // Area above atmospheric pressure

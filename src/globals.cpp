@@ -75,6 +75,8 @@ int kpa_rate_time_interval_ms = 50;
 float output_ema_a = 0.2;
 int OVERSAMPLE_COUNT = 256;
 float IDLE_TIMEOUT_SECONDS = 60;
+//Defaults configured for BOSCH 0281002976 PST-3 sensor
+//https://www.bosch-motorsport.com/content/downloads/Raceparts/Resources/pdf/Data%20Sheet_70513419_Pressure_Sensor_Combined_PST_1/PST_3.pdf
 float RAW_MIN_SENSOR_VOLTAGE = 0.4;
 float RAW_MAX_SENSOR_VOLTAGE = 4.65;
 float RAW_VOLTAGE_OFFSET = -0.09643;
