@@ -104,6 +104,12 @@ void handleTouchInputs() {
                 if (millis() - lastInstantActionTime > DEBOUNCE_DELAY) {
                     loadPreset(0);
                     activeProfile = 'A';
+                    if(xSemaphoreTake(dataMutex, portMAX_DELAY) == pdTRUE) {
+                        spoolScore = 0.0;
+                        torqueScore = 0.0;
+                        peakHoldkPa = pressurekPa;
+                        xSemaphoreGive(dataMutex);
+                    }
                     lastInstantActionTime = millis();
                 }
             }
@@ -112,6 +118,12 @@ void handleTouchInputs() {
                 if (millis() - lastInstantActionTime > DEBOUNCE_DELAY) {
                     loadPreset(1);
                     activeProfile = 'B';
+                    if(xSemaphoreTake(dataMutex, portMAX_DELAY) == pdTRUE) {
+                        spoolScore = 0.0;
+                        torqueScore = 0.0;
+                        peakHoldkPa = pressurekPa;
+                        xSemaphoreGive(dataMutex);
+                    }
                     lastInstantActionTime = millis();
                 }
             }
@@ -146,11 +158,7 @@ void handleTouchInputs() {
             if (rawReadings[4] > (touchCalibrationValues[4] + TOUCH_SENSITIVITY_OFFSET)) {
                 if (saveHoldStart == 0) saveHoldStart = millis();
                 else if (millis() - saveHoldStart > SAVE_RESET_HOLD_TIME_MS) {
-                    saveAllParameters();
-                    activePresetIndex = -1; // These are now custom settings
-                    EEPROM.put(ADDR_ACTIVE_PRESET, activePresetIndex);
-                    EEPROM.commit();
-                    showConfirmationScreen("SETTINGS", "SAVED!", 1500, MAIN_SCREEN);
+                    saveTargetPressure();
                     saveHoldStart = 0;
                     waitForRelease = true;
                 }
@@ -316,7 +324,7 @@ void handleTouchInputs() {
             if (rawReadings[1] > (touchCalibrationValues[1] + TOUCH_SENSITIVITY_OFFSET)) {
                 if (saveAHoldStart == 0) saveAHoldStart = millis();
                 else if (millis() - saveAHoldStart > SAVE_RESET_HOLD_TIME_MS) {
-                    saveScoresForPreset(0);
+                    saveCurrentConfigToProfile(0);
                     saveAHoldStart = 0;
                     waitForRelease = true;
                 }
@@ -329,7 +337,7 @@ void handleTouchInputs() {
             if (rawReadings[4] > (touchCalibrationValues[4] + TOUCH_SENSITIVITY_OFFSET)) {
                 if (saveBHoldStart == 0) saveBHoldStart = millis();
                 else if (millis() - saveBHoldStart > SAVE_RESET_HOLD_TIME_MS) {
-                    saveScoresForPreset(1);
+                    saveCurrentConfigToProfile(1);
                     saveBHoldStart = 0;
                     waitForRelease = true;
                 }

@@ -1,4 +1,4 @@
-#include "definitions.h"
+#include "config.h"
 
 //================================================================================
 // HELPER AND PRESET FUNCTIONS
@@ -44,11 +44,11 @@ void copyPresetToGlobals(const ControllerPreset& preset) {
     PID_Control_Overhead = preset.PID_Control_Overhead;
     pidTriggerkPa = preset.pidTriggerkPa;
     slow_ema_a = preset.slow_ema_a;
-    fast_ema_a = fast_ema_a;
+    fast_ema_a = preset.fast_ema_a;
     kpa_rate_change_threshold = preset.kpa_rate_change_threshold;
     kpa_rate_time_interval_ms = preset.kpa_rate_time_interval_ms;
     OVERSAMPLE_COUNT = preset.OVERSAMPLE_COUNT;
-    IDLE_TIMEOUT_SECONDS = IDLE_TIMEOUT_SECONDS;
+    IDLE_TIMEOUT_SECONDS = preset.IDLE_TIMEOUT_SECONDS;
     RAW_MIN_SENSOR_VOLTAGE = preset.RAW_MIN_SENSOR_VOLTAGE;
     RAW_MAX_SENSOR_VOLTAGE = preset.RAW_MAX_SENSOR_VOLTAGE;
     RAW_VOLTAGE_OFFSET = preset.RAW_VOLTAGE_OFFSET;
@@ -59,7 +59,15 @@ void copyPresetToGlobals(const ControllerPreset& preset) {
     calculateScaledVoltages();
 }
 
-
+void saveTargetPressure() {
+    EEPROM.put(ADDR_TARGET_KPA, targetkPa);
+    if (!EEPROM.commit()) {
+        Serial.println("EEPROM commit failed");
+        showConfirmationScreen("EEPROM", "SAVE FAIL", 2000, MAIN_SCREEN);
+    } else {
+        showConfirmationScreen("NEW TARGET", "PRESSURE SAVED", 1500, MAIN_SCREEN);
+    }
+}
 
 void loadPreset(int index) {
     if (index < 0 || index > 1) return;
@@ -196,28 +204,26 @@ void invalidatePresetScores() {
     }
 }
 
-void saveScoresForPreset(int index) {
+void saveCurrentConfigToProfile(int index) {
     if (index < 0 || index > 1) return;
 
     ControllerPreset preset;
-    EEPROM.get(ADDR_PRESET_1 + (index * sizeof(ControllerPreset)), preset);
+    copyGlobalsToPreset(preset); // Copy current settings into the preset
 
-    if (index == 0) {
-        preset.spoolScore = spoolScoreA;
-        preset.torqueScore = torqueScoreA;
-    } else {
-        preset.spoolScore = spoolScoreB;
-        preset.torqueScore = torqueScoreB;
-    }
+    // Preserve existing scores
+    ControllerPreset existingPreset;
+    EEPROM.get(ADDR_PRESET_1 + (index * sizeof(ControllerPreset)), existingPreset);
+    preset.spoolScore = existingPreset.spoolScore;
+    preset.torqueScore = existingPreset.torqueScore;
 
     EEPROM.put(ADDR_PRESET_1 + (index * sizeof(ControllerPreset)), preset);
 
     if (!EEPROM.commit()) {
-        Serial.println("Score save commit failed");
+        Serial.println("Config save commit failed");
         showConfirmationScreen("EEPROM", "SAVE FAIL", 2000, TUNE_SCORING_SCREEN);
     } else {
         char line1[20];
-        sprintf(line1, "SCORES %c", (index == 0 ? 'A' : 'B'));
+        sprintf(line1, "PROFILE %c CONFIG", (index == 0 ? 'A' : 'B'));
         showConfirmationScreen(line1, "SAVED", 1500, TUNE_SCORING_SCREEN);
     }
 }

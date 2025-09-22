@@ -59,7 +59,6 @@
 #define ADDR_ACTIVE_PRESET 92
 #define ADDR_PRESET_1 96
 #define ADDR_PRESET_2 (ADDR_PRESET_1 + sizeof(ControllerPreset))
-#define ADDR_PRESET_2 (ADDR_PRESET_1 + sizeof(ControllerPreset))
 
 //================================================================================
 // STRUCT & ENUM DEFINITIONS
@@ -230,9 +229,9 @@ void handleTouchInputs();
 void calibrateTouchSensors();
 
 // -- Persistence --
-
+void saveTargetPressure();
+void saveCurrentConfigToProfile(int index);
 void loadPreset(int index);
-void saveScoresForPreset(int index);
 void invalidatePresetScores();
 void saveAllParameters();
 void loadAllParameters();
