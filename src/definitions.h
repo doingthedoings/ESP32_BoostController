@@ -57,7 +57,8 @@
 #define ADDR_EDIT_HOLD 84
 #define ADDR_IDLE_TIMEOUT 88
 #define ADDR_ACTIVE_PRESET 92
-#define ADDR_PRESET_1 96
+#define ADDR_TS_CUTOFF 96
+#define ADDR_PRESET_1 100
 #define ADDR_PRESET_2 (ADDR_PRESET_1 + sizeof(ControllerPreset))
 
 //================================================================================
@@ -163,6 +164,7 @@ extern TorqueScoreState torqueState;
 extern std::vector<PressureTimestamp> boostEventData;
 extern float p_start, p_peak;
 extern unsigned long t_start, t_peak;
+extern unsigned long torqueLoggingStartTime;
 
 // -- Preset Management --
 extern ControllerPreset presets[2];
@@ -205,6 +207,8 @@ extern float MIN_KPA, MAX_KPA;
 extern float PRESSURE_CORRECTION_KPA;
 extern unsigned long EDIT_HOLD_TIME_MS, SAVE_RESET_HOLD_TIME_MS;
 extern int tsSampleRate;
+extern int torqueScoreCutoffMs;
+extern const int defaultTorqueScoreCutoffMs;
 
 //================================================================================
 // FUNCTION PROTOTYPES

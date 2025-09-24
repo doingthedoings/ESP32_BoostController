@@ -196,24 +196,40 @@ void pidControlTask(void *pvParameters) {
         if (torqueState == TORQUE_IDLE && currentPressure > ARMING_THRESHOLD_KPA) {
             torqueState = TORQUE_LOGGING;
             boostEventData.clear();
+            torqueLoggingStartTime = currentTime;
         }
 
         if (torqueState == TORQUE_LOGGING) {
-            if (boostEventData.size() < MAX_BOOST_EVENT_SAMPLES) {
-                boostEventData.push_back({currentPressure, currentTime});
-            }
-            if (currentPressure < (p_peak - TERMINATION_DROP_KPA)) {
-                torqueState = TORQUE_CALCULATE_AND_DISPLAY;
+            if (currentTime - torqueLoggingStartTime > 3000 && currentPressure < localTargetkPa) {
+                torqueState = TORQUE_IDLE;
+                boostEventData.clear();
+            } else {
+                if (boostEventData.size() < MAX_BOOST_EVENT_SAMPLES) {
+                    boostEventData.push_back({currentPressure, currentTime});
+                }
+                if (currentPressure < (p_peak - TERMINATION_DROP_KPA)) {
+                    torqueState = TORQUE_CALCULATE_AND_DISPLAY;
+                }
             }
         }
 
         if (torqueState == TORQUE_CALCULATE_AND_DISPLAY) {
             float totalScore = 0;
+            unsigned long setpointTime = 0;
             if (boostEventData.size() > 1) {
                 for (size_t i = 1; i < boostEventData.size(); ++i) {
                     vTaskDelay(1); // Yield to prevent watchdog timeout
                     float p_avg = (boostEventData[i].pressure + boostEventData[i-1].pressure) / 2.0;
                     unsigned long t_delta = boostEventData[i].timestamp - boostEventData[i-1].timestamp;
+                    
+                    if (p_avg >= localTargetkPa && setpointTime == 0) {
+                        setpointTime = boostEventData[i].timestamp;
+                    }
+
+                    if (setpointTime > 0 && boostEventData[i].timestamp - setpointTime > torqueScoreCutoffMs) {
+                        break;
+                    }
+
                     float area = (p_avg - 100.0) * t_delta; // Area above atmospheric pressure
 
                     if (p_avg > localTargetkPa) { // Overshoot penalty

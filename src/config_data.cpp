@@ -23,6 +23,7 @@ const char* INFO_SAVE_DELAY = "Save/Reset Hold (ms): Time to hold SAVE or RESET 
 const char* INFO_EDIT_DELAY = "Edit/CFG Hold (ms): Time to hold EDIT or CFG button to enter menu.";
 const char* INFO_SLEEP_DELAY = "Sleep Delay (s): Idle time at atmos before screen/solenoid turns off.";
 const char* INFO_TS_RATE = "TS Rate (ms): Sample rate for Torque Score calculation.";
+const char* INFO_TS_CUTOFF = "TS Cutoff (ms): Time after hitting target to stop integrating torque score.";
 
 //================================================================================
 // MENU DEFINITIONS
@@ -58,6 +59,7 @@ const MenuItem filterMenuItems[] = {
     {"Save/Reset Delay", &SAVE_RESET_HOLD_TIME_MS, P_ULONG, 0, "ms", INFO_SAVE_DELAY},
     {"Edit/CFG Delay", &EDIT_HOLD_TIME_MS, P_ULONG, 0, "ms", INFO_EDIT_DELAY},
     {"Sleep Delay", &IDLE_TIMEOUT_SECONDS, P_FLOAT, 0, "s", INFO_SLEEP_DELAY},
-    {"TS Rate", &tsSampleRate, P_INT, 0, "ms", INFO_TS_RATE}
+    {"TS Rate", &tsSampleRate, P_INT, 0, "ms", INFO_TS_RATE},
+    {"TS Cutoff", &torqueScoreCutoffMs, P_INT, 0, "ms", INFO_TS_CUTOFF}
 };
 const int filterMenuCount = sizeof(filterMenuItems) / sizeof(MenuItem);

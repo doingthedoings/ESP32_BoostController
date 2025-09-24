@@ -35,6 +35,7 @@ TorqueScoreState torqueState = TORQUE_IDLE;
 std::vector<PressureTimestamp> boostEventData;
 float p_start, p_peak;
 unsigned long t_start, t_peak;
+unsigned long torqueLoggingStartTime = 0;
 
 // -- Preset Management --
 ControllerPreset presets[2];
@@ -86,3 +87,5 @@ float PRESSURE_CORRECTION_KPA = 2.76;
 unsigned long EDIT_HOLD_TIME_MS = 1000;
 unsigned long SAVE_RESET_HOLD_TIME_MS = 1000;
 int tsSampleRate = 10;
+int torqueScoreCutoffMs = 500;
+const int defaultTorqueScoreCutoffMs = 500;

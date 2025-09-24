@@ -34,6 +34,8 @@ void copyGlobalsToPreset(ControllerPreset& preset) {
     preset.MIN_KPA = MIN_KPA;
     preset.MAX_KPA = MAX_KPA;
     preset.PRESSURE_CORRECTION_KPA = PRESSURE_CORRECTION_KPA;
+    preset.spoolScore = 0.0;
+    preset.torqueScore = 0.0;
 }
 
 void copyPresetToGlobals(const ControllerPreset& preset) {
@@ -55,6 +57,15 @@ void copyPresetToGlobals(const ControllerPreset& preset) {
     MIN_KPA = preset.MIN_KPA;
     MAX_KPA = preset.MAX_KPA;
     PRESSURE_CORRECTION_KPA = preset.PRESSURE_CORRECTION_KPA;
+
+    // Copy the scores for both profiles
+    if (activePresetIndex == 0) {
+        spoolScoreA = preset.spoolScore;
+        torqueScoreA = preset.torqueScore;
+    } else {
+        spoolScoreB = preset.spoolScore;
+        torqueScoreB = preset.torqueScore;
+    }
     
     calculateScaledVoltages();
 }
@@ -112,6 +123,7 @@ void saveAllParameters() {
     EEPROM.put(ADDR_KPA_RATE_THRESH, kpa_rate_change_threshold); EEPROM.put(ADDR_KPA_RATE_INTERVAL, kpa_rate_time_interval_ms);
     EEPROM.put(ADDR_OVERSAMPLE_COUNT, OVERSAMPLE_COUNT); EEPROM.put(ADDR_SAVE_RESET_HOLD, SAVE_RESET_HOLD_TIME_MS);
     EEPROM.put(ADDR_EDIT_HOLD, EDIT_HOLD_TIME_MS); EEPROM.put(ADDR_IDLE_TIMEOUT, IDLE_TIMEOUT_SECONDS);
+    EEPROM.put(ADDR_TS_CUTOFF, torqueScoreCutoffMs);
     if (!EEPROM.commit()) {
         Serial.println("EEPROM commit failed");
         showConfirmationScreen("EEPROM", "SAVE FAIL", 2000, MAIN_SCREEN);
@@ -130,6 +142,10 @@ void loadAllParameters() {
     EEPROM.get(ADDR_KPA_RATE_THRESH, kpa_rate_change_threshold); EEPROM.get(ADDR_KPA_RATE_INTERVAL, kpa_rate_time_interval_ms);
     EEPROM.get(ADDR_OVERSAMPLE_COUNT, OVERSAMPLE_COUNT); EEPROM.get(ADDR_SAVE_RESET_HOLD, SAVE_RESET_HOLD_TIME_MS);
     EEPROM.get(ADDR_EDIT_HOLD, EDIT_HOLD_TIME_MS); EEPROM.get(ADDR_IDLE_TIMEOUT, IDLE_TIMEOUT_SECONDS);
+    EEPROM.get(ADDR_TS_CUTOFF, torqueScoreCutoffMs);
+    if (torqueScoreCutoffMs < 0 || torqueScoreCutoffMs > 10000) {
+        torqueScoreCutoffMs = defaultTorqueScoreCutoffMs;
+    }
 }
 
 void initializeDefaultParameters(){
@@ -210,11 +226,14 @@ void saveCurrentConfigToProfile(int index) {
     ControllerPreset preset;
     copyGlobalsToPreset(preset); // Copy current settings into the preset
 
-    // Preserve existing scores
-    ControllerPreset existingPreset;
-    EEPROM.get(ADDR_PRESET_1 + (index * sizeof(ControllerPreset)), existingPreset);
-    preset.spoolScore = existingPreset.spoolScore;
-    preset.torqueScore = existingPreset.torqueScore;
+    // Use the live score values for the profile being saved
+    if (index == 0) { // Profile A
+        preset.spoolScore = spoolScoreA;
+        preset.torqueScore = torqueScoreA;
+    } else { // Profile B
+        preset.spoolScore = spoolScoreB;
+        preset.torqueScore = torqueScoreB;
+    }
 
     EEPROM.put(ADDR_PRESET_1 + (index * sizeof(ControllerPreset)), preset);
 

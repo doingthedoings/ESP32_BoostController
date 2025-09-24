@@ -240,7 +240,6 @@ void handleTouchInputs() {
                 if (rawReadings[1] > (touchCalibrationValues[1] + TOUCH_SENSITIVITY_OFFSET)) {
                     if (cfgSaveHoldStart == 0) cfgSaveHoldStart = millis();
                     else if (millis() - cfgSaveHoldStart > SAVE_RESET_HOLD_TIME_MS) {
-                        invalidatePresetScores();
                         saveAllParameters();
                         calculateScaledVoltages();
                         
