@@ -226,8 +226,8 @@ void saveCurrentConfigToProfile(int index) {
     ControllerPreset preset;
     copyGlobalsToPreset(preset); // Copy current settings into the preset
 
-    // Use the live score values for the profile being saved
-    if (index == 0) { // Profile A
+    // Use the live score values for the active profile
+    if (activePresetIndex == 0) { // Profile A
         preset.spoolScore = spoolScoreA;
         preset.torqueScore = torqueScoreA;
     } else { // Profile B
