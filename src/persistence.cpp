@@ -34,8 +34,7 @@ void copyGlobalsToPreset(ControllerPreset& preset) {
     preset.MIN_KPA = MIN_KPA;
     preset.MAX_KPA = MAX_KPA;
     preset.PRESSURE_CORRECTION_KPA = PRESSURE_CORRECTION_KPA;
-    preset.spoolScore = 0.0;
-    preset.torqueScore = 0.0;
+    
 }
 
 void copyPresetToGlobals(const ControllerPreset& preset) {
@@ -196,14 +195,12 @@ void invalidatePresetScores() {
     ControllerPreset preset;
     // Invalidate Preset A
     EEPROM.get(ADDR_PRESET_1, preset);
-    preset.spoolScore = 0.0;
-    preset.torqueScore = 0.0;
+    
     EEPROM.put(ADDR_PRESET_1, preset);
 
     // Invalidate Preset B
     EEPROM.get(ADDR_PRESET_2, preset);
-    preset.spoolScore = 0.0;
-    preset.torqueScore = 0.0;
+    
     EEPROM.put(ADDR_PRESET_2, preset);
 
     if (!EEPROM.commit()) {
@@ -219,6 +216,26 @@ void invalidatePresetScores() {
         xSemaphoreGive(dataMutex);
     }
 }
+void saveScoresForProfile(int index) {
+    if (index < 0 || index > 1) return;
+
+    ControllerPreset preset;
+    EEPROM.get(ADDR_PRESET_1 + (index * sizeof(ControllerPreset)), preset);
+
+    if (index == 0) { // Profile A
+        preset.spoolScore = spoolScoreA;
+        preset.torqueScore = torqueScoreA;
+    } else { // Profile B
+        preset.spoolScore = spoolScoreB;
+        preset.torqueScore = torqueScoreB;
+    }
+
+    EEPROM.put(ADDR_PRESET_1 + (index * sizeof(ControllerPreset)), preset);
+
+    if (!EEPROM.commit()) {
+        Serial.println("Score save commit failed");
+    }
+}
 
 void saveCurrentConfigToProfile(int index) {
     if (index < 0 || index > 1) return;
@@ -226,13 +243,14 @@ void saveCurrentConfigToProfile(int index) {
     ControllerPreset preset;
     copyGlobalsToPreset(preset); // Copy current settings into the preset
 
-    // Use the live score values for the active profile
-    if (activePresetIndex == 0) { // Profile A
-        preset.spoolScore = spoolScoreA;
-        preset.torqueScore = torqueScoreA;
-    } else { // Profile B
-        preset.spoolScore = spoolScoreB;
-        preset.torqueScore = torqueScoreB;
+    
+
+    if (index == 0) {
+        spoolScoreA = 0.0;
+        torqueScoreA = 0.0;
+    } else {
+        spoolScoreB = 0.0;
+        torqueScoreB = 0.0;
     }
 
     EEPROM.put(ADDR_PRESET_1 + (index * sizeof(ControllerPreset)), preset);

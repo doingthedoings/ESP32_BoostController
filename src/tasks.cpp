@@ -184,8 +184,15 @@ void pidControlTask(void *pvParameters) {
                 if (maxRate > spoolScore) { spoolScore = maxRate; }
                 if (activeProfile == 'A') {
                     if (spoolScore > spoolScoreA) { spoolScoreA = spoolScore; }
+                    if (spoolScore > spoolScoreA) { 
+                        spoolScoreA = spoolScore;
+                        saveScoresForProfile(0);
+                    }
                 } else {
-                    if (spoolScore > spoolScoreB) { spoolScoreB = spoolScore; }
+                    if (spoolScore > spoolScoreB) { 
+                        spoolScoreB = spoolScore;
+                        saveScoresForProfile(1);
+                    }
                 }
                 xSemaphoreGive(dataMutex);
             }
@@ -242,9 +249,15 @@ void pidControlTask(void *pvParameters) {
                 float scaledTorqueScore = totalScore / 1000.0;
                 if (scaledTorqueScore > torqueScore) { torqueScore = scaledTorqueScore; }
                 if (activeProfile == 'A') {
-                    if (torqueScore > torqueScoreA) { torqueScoreA = torqueScore; }
+                    if (torqueScore > torqueScoreA) {
+                        torqueScoreA = torqueScore;
+                        saveScoresForProfile(0);
+                    }
                 } else {
-                    if (torqueScore > torqueScoreB) { torqueScoreB = torqueScore; }
+                    if (torqueScore > torqueScoreB) {
+                        torqueScoreB = torqueScore;
+                        saveScoresForProfile(1);
+                    }
                 }
                 xSemaphoreGive(dataMutex);
             }

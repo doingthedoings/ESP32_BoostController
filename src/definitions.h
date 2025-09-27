@@ -235,6 +235,7 @@ void calibrateTouchSensors();
 // -- Persistence --
 void saveTargetPressure();
 void saveCurrentConfigToProfile(int index);
+void saveScoresForProfile(int index);
 void loadPreset(int index);
 void invalidatePresetScores();
 void saveAllParameters();
